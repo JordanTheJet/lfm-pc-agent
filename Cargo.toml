@@ -1,0 +1,23 @@
+[package]
+name = "lfm-pc-agent"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "openclaw-style local AI PC control demo, driven by a local Liquid AI LFM2-VL model"
+publish = false
+
+# Detach from the parent zeroclaw cargo workspace so this demo builds standalone
+# (`cargo run` here does not pull in the 20+ workspace crates and won't touch CI).
+[workspace]
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4.5", features = ["derive", "env"] }
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "rustls-tls"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+base64 = "0.22"
+image = { version = "0.25", default-features = false, features = ["png"] }
+
+[profile.release]
+opt-level = 2

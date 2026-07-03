@@ -1,0 +1,363 @@
+[
+  {
+    "name": "launch_app_from_finder",
+    "task": "Open TextEdit, type 'Hello from a local agent.', then save the document to the Desktop as zeroclaw-demo.txt",
+    "frontmost_app": "Finder",
+    "history": [],
+    "elements": [
+      { "id": 1, "role": "AXButton", "label": "Back" },
+      { "id": 2, "role": "AXButton", "label": "Forward" }
+    ],
+    "expected": [ { "action": "open_app", "app": "TextEdit" } ]
+  },
+  {
+    "name": "type_into_document",
+    "task": "Open TextEdit, type 'Hello from a local agent.', then save the document to the Desktop as zeroclaw-demo.txt",
+    "frontmost_app": "TextEdit",
+    "history": ["open_app: launched TextEdit"],
+    "elements": [
+      { "id": 1, "role": "AXTextArea", "label": "", "value": "" }
+    ],
+    "expected": [ { "action": "type", "id": 1, "text_contains": "hello" } ]
+  },
+  {
+    "name": "save_with_shortcut",
+    "task": "Open TextEdit, type 'Hello from a local agent.', then save the document to the Desktop as zeroclaw-demo.txt",
+    "frontmost_app": "TextEdit",
+    "history": ["open_app: launched TextEdit", "type: typed \"Hello from a local agent.\""],
+    "elements": [
+      { "id": 1, "role": "AXTextArea", "label": "", "value": "Hello from a local agent." }
+    ],
+    "expected": [ { "action": "key", "keys": "cmd+s" } ]
+  },
+  {
+    "name": "save_sheet_set_filename",
+    "task": "Save the document to the Desktop as zeroclaw-demo.txt",
+    "frontmost_app": "TextEdit",
+    "history": ["key: pressed cmd+s"],
+    "elements": [
+      { "id": 1, "role": "AXTextField", "label": "Save As:", "value": "Untitled" },
+      { "id": 2, "role": "AXPopUpButton", "label": "Where", "value": "Documents" },
+      { "id": 3, "role": "AXButton", "label": "Save" },
+      { "id": 4, "role": "AXButton", "label": "Cancel" }
+    ],
+    "expected": [ { "action": "type", "id": 1, "text_contains": "zeroclaw-demo" } ]
+  },
+  {
+    "name": "save_sheet_click_save",
+    "task": "Save the document to the Desktop as zeroclaw-demo.txt",
+    "frontmost_app": "TextEdit",
+    "history": ["key: pressed cmd+s", "type: typed \"zeroclaw-demo.txt\""],
+    "elements": [
+      { "id": 1, "role": "AXTextField", "label": "Save As:", "value": "zeroclaw-demo.txt" },
+      { "id": 2, "role": "AXPopUpButton", "label": "Where", "value": "Desktop" },
+      { "id": 3, "role": "AXButton", "label": "Save" },
+      { "id": 4, "role": "AXButton", "label": "Cancel" }
+    ],
+    "expected": [ { "action": "click", "id": 3 }, { "action": "key", "keys": "return" } ]
+  },
+  {
+    "name": "dialog_pick_save_not_dont_save",
+    "task": "Save the document",
+    "frontmost_app": "TextEdit",
+    "history": [],
+    "elements": [
+      { "id": 1, "role": "AXButton", "label": "Don't Save" },
+      { "id": 2, "role": "AXButton", "label": "Cancel" },
+      { "id": 3, "role": "AXButton", "label": "Save" }
+    ],
+    "expected": [ { "action": "click", "id": 3 } ]
+  },
+  {
+    "name": "empty_list_no_hallucinated_click",
+    "task": "Click the Save button",
+    "frontmost_app": "TextEdit",
+    "history": ["key: pressed cmd+s"],
+    "elements": [],
+    "expected": [ { "action": "key", "keys": "cmd+s" }, { "action": "wait" }, { "action": "key", "keys": "return" } ]
+  },
+  {
+    "name": "task_already_complete",
+    "task": "Open TextEdit and type a greeting",
+    "frontmost_app": "TextEdit",
+    "history": ["open_app: launched TextEdit", "type: typed \"Hello there.\""],
+    "elements": [
+      { "id": 1, "role": "AXTextArea", "label": "", "value": "Hello there." }
+    ],
+    "expected": [ { "action": "done" } ]
+  },
+  {
+    "name": "bold_via_shortcut_not_wrong_id",
+    "task": "Make the selected text bold",
+    "frontmost_app": "TextEdit",
+    "history": [],
+    "elements": [
+      { "id": 1, "role": "AXTextArea", "label": "", "value": "some selected text" },
+      { "id": 2, "role": "AXButton", "label": "Format" }
+    ],
+    "expected": [ { "action": "key", "keys": "cmd+b" }, { "action": "wait" } ]
+  },
+  {
+    "name": "safari_focus_address_bar",
+    "task": "Search Wikipedia for cats in the browser",
+    "frontmost_app": "Safari",
+    "history": [],
+    "elements": [
+      { "id": 1, "role": "AXButton", "label": "Back" },
+      { "id": 2, "role": "AXButton", "label": "Reload" },
+      { "id": 3, "role": "AXTextField", "label": "Address", "value": "" }
+    ],
+    "expected": [ { "action": "type", "id": 3 }, { "action": "key", "keys": "cmd+l" } ]
+  },
+  {
+    "name": "finder_open_downloads",
+    "task": "Open the Downloads folder",
+    "frontmost_app": "Finder",
+    "history": [],
+    "elements": [
+      { "id": 1, "role": "AXButton", "label": "Applications" },
+      { "id": 2, "role": "AXButton", "label": "Downloads" },
+      { "id": 3, "role": "AXButton", "label": "Documents" }
+    ],
+    "expected": [ { "action": "click", "id": 2 } ]
+  },
+  {
+    "name": "confirm_default_button",
+    "task": "Confirm and save the file",
+    "frontmost_app": "TextEdit",
+    "history": ["type: typed \"zeroclaw-demo.txt\""],
+    "elements": [
+      { "id": 1, "role": "AXTextField", "label": "Save As:", "value": "zeroclaw-demo.txt" },
+      { "id": 2, "role": "AXButton", "label": "Save" },
+      { "id": 3, "role": "AXButton", "label": "Cancel" }
+    ],
+    "expected": [ { "action": "click", "id": 2 }, { "action": "key", "keys": "return" } ]
+  },
+  {
+    "name": "pick_field_not_button",
+    "task": "Type Alice into the name field",
+    "frontmost_app": "Contacts",
+    "history": [],
+    "elements": [
+      { "id": 1, "role": "AXButton", "label": "Help" },
+      { "id": 2, "role": "AXTextField", "label": "Name", "value": "" },
+      { "id": 3, "role": "AXButton", "label": "Done" }
+    ],
+    "expected": [ { "action": "type", "id": 2, "text_contains": "alice" } ]
+  },
+  {
+    "name": "launch_calculator",
+    "task": "Launch the Calculator app",
+    "frontmost_app": "Finder",
+    "history": [],
+    "elements": [],
+    "expected": [ { "action": "open_app", "app": "Calculator" }, { "action": "key", "keys": "cmd+space" } ]
+  },
+  {
+    "name": "mail_compose_to_field",
+    "task": "Start a new email addressed to bob@example.com",
+    "frontmost_app": "Mail",
+    "history": [],
+    "elements": [
+      { "id": 1, "role": "AXTextField", "label": "To:", "value": "" },
+      { "id": 2, "role": "AXTextField", "label": "Subject:", "value": "" },
+      { "id": 3, "role": "AXTextArea", "label": "", "value": "" }
+    ],
+    "expected": [ { "action": "type", "id": 1, "text_contains": "bob" } ]
+  },
+  {
+    "name": "notes_type_body",
+    "task": "Write 'Meeting notes' in the note",
+    "frontmost_app": "Notes",
+    "history": [],
+    "elements": [
+      { "id": 1, "role": "AXTextArea", "label": "", "value": "" }
+    ],
+    "expected": [ { "action": "type", "id": 1, "text_contains": "meeting" } ]
+  },
+  {
+    "name": "browser_type_url",
+    "task": "Go to github.com in the browser",
+    "frontmost_app": "Google Chrome",
+    "history": [],
+    "elements": [
+      { "id": 1, "role": "AXButton", "label": "Back" },
+      { "id": 2, "role": "AXTextField", "label": "Address and search bar", "value": "" },
+      { "id": 3, "role": "AXButton", "label": "Reload" }
+    ],
+    "expected": [ { "action": "type", "id": 2, "text_contains": "github" }, { "action": "key", "keys": "cmd+l" } ]
+  },
+  {
+    "name": "finder_rename_field",
+    "task": "Rename the selected file to report.txt",
+    "frontmost_app": "Finder",
+    "history": ["key: pressed return"],
+    "elements": [
+      { "id": 1, "role": "AXTextField", "label": "name", "value": "untitled.txt" }
+    ],
+    "expected": [ { "action": "type", "id": 1, "text_contains": "report" } ]
+  },
+  {
+    "name": "login_pick_username_field",
+    "task": "Enter the username jordan into the sign-in form",
+    "frontmost_app": "Safari",
+    "history": [],
+    "elements": [
+      { "id": 1, "role": "AXTextField", "label": "Username", "value": "" },
+      { "id": 2, "role": "AXSecureTextField", "label": "Password", "value": "" },
+      { "id": 3, "role": "AXButton", "label": "Sign In" }
+    ],
+    "expected": [ { "action": "type", "id": 1, "text_contains": "jordan" } ]
+  },
+  {
+    "name": "login_pick_password_field",
+    "task": "Type the password hunter2 into the password field",
+    "frontmost_app": "Safari",
+    "history": ["type: typed \"jordan\" into Username"],
+    "elements": [
+      { "id": 1, "role": "AXTextField", "label": "Username", "value": "jordan" },
+      { "id": 2, "role": "AXSecureTextField", "label": "Password", "value": "" },
+      { "id": 3, "role": "AXButton", "label": "Sign In" }
+    ],
+    "expected": [ { "action": "type", "id": 2, "text_contains": "hunter2" } ]
+  },
+  {
+    "name": "search_field_type",
+    "task": "Search for invoices",
+    "frontmost_app": "Finder",
+    "history": [],
+    "elements": [
+      { "id": 1, "role": "AXTextField", "label": "Search", "value": "" },
+      { "id": 2, "role": "AXButton", "label": "Back" }
+    ],
+    "expected": [ { "action": "type", "id": 1, "text_contains": "invoices" } ]
+  },
+  {
+    "name": "dialog_replace_not_cancel",
+    "task": "Replace the existing file",
+    "frontmost_app": "TextEdit",
+    "history": [],
+    "elements": [
+      { "id": 1, "role": "AXButton", "label": "Cancel" },
+      { "id": 2, "role": "AXButton", "label": "Replace" }
+    ],
+    "expected": [ { "action": "click", "id": 2 } ]
+  },
+  {
+    "name": "dialog_discard_dont_save",
+    "task": "Discard changes and close the document without saving",
+    "frontmost_app": "TextEdit",
+    "history": [],
+    "elements": [
+      { "id": 1, "role": "AXButton", "label": "Save" },
+      { "id": 2, "role": "AXButton", "label": "Cancel" },
+      { "id": 3, "role": "AXButton", "label": "Don't Save" }
+    ],
+    "expected": [ { "action": "click", "id": 3 } ]
+  },
+  {
+    "name": "dialog_cancel_not_ok",
+    "task": "Dismiss this dialog without applying any changes",
+    "frontmost_app": "System Settings",
+    "history": [],
+    "elements": [
+      { "id": 1, "role": "AXButton", "label": "OK" },
+      { "id": 2, "role": "AXButton", "label": "Cancel" }
+    ],
+    "expected": [ { "action": "click", "id": 2 } ]
+  },
+  {
+    "name": "dialog_confirm_delete",
+    "task": "Confirm and delete the item",
+    "frontmost_app": "Finder",
+    "history": [],
+    "elements": [
+      { "id": 1, "role": "AXButton", "label": "Delete" },
+      { "id": 2, "role": "AXButton", "label": "Cancel" }
+    ],
+    "expected": [ { "action": "click", "id": 1 } ]
+  },
+  {
+    "name": "save_not_save_as_trap",
+    "task": "Save the current document (do not use Save As)",
+    "frontmost_app": "TextEdit",
+    "history": [],
+    "elements": [
+      { "id": 1, "role": "AXButton", "label": "Save As…" },
+      { "id": 2, "role": "AXButton", "label": "Save" }
+    ],
+    "expected": [ { "action": "click", "id": 2 }, { "action": "key", "keys": "cmd+s" } ]
+  },
+  {
+    "name": "menu_pick_open",
+    "task": "Open a file using the File menu that is showing",
+    "frontmost_app": "TextEdit",
+    "history": ["click: opened File menu"],
+    "elements": [
+      { "id": 1, "role": "AXMenuItem", "label": "New" },
+      { "id": 2, "role": "AXMenuItem", "label": "Open…" },
+      { "id": 3, "role": "AXMenuItem", "label": "Save" },
+      { "id": 4, "role": "AXMenuItem", "label": "Close" }
+    ],
+    "expected": [ { "action": "click", "id": 2 } ]
+  },
+  {
+    "name": "finder_open_applications",
+    "task": "Open the Applications folder",
+    "frontmost_app": "Finder",
+    "history": [],
+    "elements": [
+      { "id": 1, "role": "AXButton", "label": "Applications" },
+      { "id": 2, "role": "AXButton", "label": "Downloads" },
+      { "id": 3, "role": "AXButton", "label": "Documents" }
+    ],
+    "expected": [ { "action": "click", "id": 1 } ]
+  },
+  {
+    "name": "shortcut_copy_selection",
+    "task": "Copy the selected text",
+    "frontmost_app": "TextEdit",
+    "history": [],
+    "elements": [
+      { "id": 1, "role": "AXTextArea", "label": "", "value": "selected text" }
+    ],
+    "expected": [ { "action": "key", "keys": "cmd+c" } ]
+  },
+  {
+    "name": "shortcut_new_tab",
+    "task": "Open a new browser tab",
+    "frontmost_app": "Safari",
+    "history": [],
+    "elements": [
+      { "id": 1, "role": "AXButton", "label": "Back" },
+      { "id": 2, "role": "AXTextField", "label": "Address", "value": "apple.com" }
+    ],
+    "expected": [ { "action": "key", "keys": "cmd+t" } ]
+  },
+  {
+    "name": "launch_system_settings",
+    "task": "Open System Settings",
+    "frontmost_app": "Finder",
+    "history": [],
+    "elements": [],
+    "expected": [ { "action": "open_app", "app": "System Settings" }, { "action": "key", "keys": "cmd+space" } ]
+  },
+  {
+    "name": "already_complete_safari_open",
+    "task": "Open the Safari web browser",
+    "frontmost_app": "Safari",
+    "history": ["open_app: launched Safari"],
+    "elements": [
+      { "id": 1, "role": "AXTextField", "label": "Address", "value": "" }
+    ],
+    "expected": [ { "action": "done" } ]
+  },
+  {
+    "name": "empty_list_no_send_hallucination",
+    "task": "Click the Send button",
+    "frontmost_app": "Mail",
+    "history": ["key: pressed cmd+return"],
+    "elements": [],
+    "expected": [ { "action": "wait" }, { "action": "key", "keys": "cmd+return" }, { "action": "done" } ]
+  }
+]

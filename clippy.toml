@@ -1,0 +1,5 @@
+# Local clippy config for this standalone demo crate.
+# It overrides the repo-root clippy.toml (clippy uses the nearest, it does not
+# merge): the root bans bare log/anyhow macros because every other crate routes
+# through `zeroclaw-log`. This demo is intentionally dependency-light and does
+# not pull in zeroclaw-log, so plain `anyhow!` / `println!` are the right tools.
