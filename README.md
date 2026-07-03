@@ -20,6 +20,24 @@ local. That's the "host-by-default" philosophy: you own the data and the blast r
         └─────────────────────────────────────────────────────────────────┘
 ```
 
+## Which model? — benchmark
+
+33-case AX-selection suite, grammar-constrained JSON. `fair` also credits picking the *correct*
+field with a `click` when a `type` was expected (a valid focus-then-type step that a single-turn
+score would otherwise penalize).
+
+| model | params (active) | exact | fair | safe | p50 / step | VRAM (Q4) |
+|-------|-----------------|:-----:|:----:|:----:|:----------:|:---------:|
+| **LFM2-24B-A2B** *(default)* | 24B (2.3B) | 76% | 76% | 94% | **177 ms** | ~15 GB |
+| LFM2.5-8B-A1B | 8B (~1B) | ~70% | ~78% | ~99% | 1.5 s | **~5.5 GB** |
+| Qwen3.6-35B-A3B *(SOTA reference)* | 35B (~3B) | **82%** | **100%** | 100% | 0.84 s | ~23 GB |
+
+**Why the 24B is the default:** *not* because it's the most accurate — Qwen 3.6 edges it — but
+because it's the only one both **fast enough for a real-time loop (~5× the others)** *and*
+accurate-enough, at a moderate 15 GB. The newer LFM2.5-8B-A1B is remarkably competitive at a
+third the VRAM (just slower). Full methodology + honest caveats (directional; 33 cases; a single
+hardware setup; earlier 14-case runs overstated the 24B) in **[BENCHMARKS.md](BENCHMARKS.md)**.
+
 ## Why it works with a 1.6B model
 
 A ~1.6B vision model **cannot** reliably regress raw click coordinates on a Retina
@@ -134,9 +152,10 @@ One JSON object per turn, grammar-constrained by llama.cpp:
 
 ## Model notes
 
-- **Default: `LiquidAI/LFM2-24B-A2B-GGUF:Q4_K_M`** — the benchmarked pick (79% exact-match,
-  ties SOTA; see **[BENCHMARKS.md](BENCHMARKS.md)**). It's a text model, so it's driven
-  AX-only (the default `run` mode); ~14 GB Q4 fits a 24 GB GPU or a 32 GB+ Mac.
+- **Default: `LiquidAI/LFM2-24B-A2B-GGUF:Q4_K_M`** — chosen for the best **speed / accuracy /
+  size balance** for a real-time loop (~177 ms/step; see the benchmark above and
+  **[BENCHMARKS.md](BENCHMARKS.md)**). It's a text model, so it's driven AX-only (the default
+  `run` mode); ~14 GB Q4 fits a 24 GB GPU or a 32 GB+ Mac.
 - Tiny/edge tier (worse, ~30–36%): `LiquidAI/LFM2.5-VL-1.6B-GGUF:Q8_0` — vision-capable,
   run it with `--vision`.
 - Any OpenAI-compatible server works via `--url` + `--model` — e.g. a remote llama.cpp or
