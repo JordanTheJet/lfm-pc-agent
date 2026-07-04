@@ -104,6 +104,23 @@ Useful flags for `run`:
 | `--verify-file <path>` | after `done`, assert this file exists (ground-truth check) |
 | `--url` / `--model` | point at a different server / model (env `LFM_URL`) |
 
+## Run it fully on-device (private — nothing leaves the machine)
+
+The default serves the model on a GPU box, but the **8B** (`LFM2.5-8B-A1B`, ~1B active) is small
+enough to run **on the same machine it's driving** — so the screenshot + accessibility tree never
+leave your computer. One command:
+
+```bash
+./run-8b-local.sh                                   # the default demo task
+./run-8b-local.sh "Open Calculator and type 12*9="  # a custom task
+```
+
+It serves the 8B locally (`llama-server` on Metal / CUDA, model cached) and drives the AX pipeline
+against it — **no cloud, no API bill, works offline.** On the 33-case AX-selection benchmark the 8B
+scores **~70% at 100% safe** (see [BENCHMARKS.md](BENCHMARKS.md)) — competitive with the 24B at a
+third the footprint. That's the *private computer-use* story: a laptop-class model that controls
+your computer with zero cloud dependency.
+
 ## The demo task
 
 > *Open TextEdit, type a note, and save it to the Desktop as `zeroclaw-demo`.*
