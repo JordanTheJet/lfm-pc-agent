@@ -135,8 +135,14 @@ fn main() -> Result<()> {
     }
 }
 
-const OBS_PNG: &str = "/tmp/lfm-pc-agent-obs.png";
-const MARKS_PNG: &str = "/tmp/lfm-pc-agent-marks.png";
+/// Scratch PNG path under the OS temp dir (`/tmp` on Unix, `%TEMP%` on Windows) so the
+/// tool behaves identically on every platform instead of hardcoding `/tmp`.
+fn tmp_png(name: &str) -> String {
+    std::env::temp_dir()
+        .join(format!("lfm-pc-agent-{name}.png"))
+        .to_string_lossy()
+        .into_owned()
+}
 
 fn run(a: RunArgs) -> Result<()> {
     let client = reqwest::blocking::Client::builder()
@@ -237,21 +243,23 @@ fn capture(bounds: &Option<(f64, f64, f64, f64)>, marks: bool, els: &[ObservedEl
         Some((x, y, w, h)) if *w > 1.0 && *h > 1.0 => Some((*x, *y, *w, *h)),
         _ => None,
     };
+    let obs = tmp_png("obs");
+    let marks_png = tmp_png("marks");
     let captured = match region {
-        Some((x, y, w, h)) => perceive::screenshot_region(x, y, w, h, OBS_PNG),
-        None => perceive::screenshot_full(OBS_PNG),
+        Some((x, y, w, h)) => perceive::screenshot_region(x, y, w, h, &obs),
+        None => perceive::screenshot_full(&obs),
     };
     if captured.is_err() {
         return None;
     }
     // Marks need the window origin/scale, so only overlay them on a region capture.
-    let send_path = if marks && region.is_some() {
-        match marks::annotate(OBS_PNG, els, region, MARKS_PNG) {
-            Ok(()) => MARKS_PNG,
-            Err(_) => OBS_PNG,
+    let send_path: &str = if marks && region.is_some() {
+        match marks::annotate(&obs, els, region, &marks_png) {
+            Ok(()) => &marks_png,
+            Err(_) => &obs,
         }
     } else {
-        OBS_PNG
+        &obs
     };
     perceive::png_base64(send_path).ok()
 }
@@ -337,18 +345,20 @@ fn observe(a: ObserveArgs) -> Result<()> {
         let (cx, cy) = e.center();
         println!("  {:>2}: {:<48} @ ({:.0},{:.0})", e.id, e.label(), cx, cy);
     }
+    let obs = tmp_png("obs");
+    let marks_png = tmp_png("marks");
     let cap = match bounds {
         Some((x, y, w, h)) if w > 1.0 && h > 1.0 => {
-            perceive::screenshot_region(x, y, w, h, OBS_PNG)
+            perceive::screenshot_region(x, y, w, h, &obs)
         }
-        _ => perceive::screenshot_full(OBS_PNG),
+        _ => perceive::screenshot_full(&obs),
     };
     match cap {
         Ok(()) => {
-            println!("\nscreenshot    : {OBS_PNG}");
+            println!("\nscreenshot    : {obs}");
             if a.marks {
-                match marks::annotate(OBS_PNG, &els, bounds, MARKS_PNG) {
-                    Ok(()) => println!("set-of-marks  : {MARKS_PNG}"),
+                match marks::annotate(&obs, &els, bounds, &marks_png) {
+                    Ok(()) => println!("set-of-marks  : {marks_png}"),
                     Err(e) => println!("set-of-marks  : skipped ({e})"),
                 }
             }
@@ -370,9 +380,10 @@ fn doctor(c: &ConnArgs) -> Result<()> {
     }
 
     // 2. Screen capture
-    match perceive::screenshot_full("/tmp/lfm-pc-agent-doctor.png") {
+    let doctor_png = tmp_png("doctor");
+    match perceive::screenshot_full(&doctor_png) {
         Ok(()) => {
-            let sz = std::fs::metadata("/tmp/lfm-pc-agent-doctor.png")
+            let sz = std::fs::metadata(&doctor_png)
                 .map(|m| m.len())
                 .unwrap_or(0);
             if sz > 0 {
@@ -429,9 +440,28 @@ fn note(s: &str) {
 
 fn expand_tilde(p: &str) -> String {
     if let Some(rest) = p.strip_prefix("~/") {
-        if let Some(home) = std::env::var_os("HOME") {
-            return format!("{}/{}", home.to_string_lossy(), rest);
+        if let Some(home) = home_dir() {
+            return home.join(rest).to_string_lossy().into_owned();
         }
     }
     p.to_string()
+}
+
+/// The user's home directory: `$HOME` on Unix, `%USERPROFILE%` (or the
+/// `HOMEDRIVE`+`HOMEPATH` pair) on Windows.
+fn home_dir() -> Option<std::path::PathBuf> {
+    if let Some(h) = std::env::var_os("HOME") {
+        return Some(std::path::PathBuf::from(h));
+    }
+    if let Some(h) = std::env::var_os("USERPROFILE") {
+        return Some(std::path::PathBuf::from(h));
+    }
+    match (std::env::var_os("HOMEDRIVE"), std::env::var_os("HOMEPATH")) {
+        (Some(drive), Some(path)) => {
+            let mut s = std::ffi::OsString::from(drive);
+            s.push(path);
+            Some(std::path::PathBuf::from(s))
+        }
+        _ => None,
+    }
 }
